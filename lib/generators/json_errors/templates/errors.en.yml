@@ -1,0 +1,9 @@
+en:
+  errors:
+    format: "%{message}"
+    messages:
+      required: "%{attribute} is require"
+      blank: "%{attribute} cannot be blank"
+      taken: "%{attribute} already exists in the system"
+      too_long: "%{attribute} too long"
+      too_short: "%{attribute} too short"
