@@ -2,10 +2,10 @@
 
 module JsonErrors
   class JError < StandardError
-    def initializer(name, status, options)
-      self.name = name
-      self.status = status
-      self.options = options
+    def initialize(name:, status:, options:)
+      @name = name
+      @status = status
+      @options = options
     end
 
     attr_reader :name, :status, :options
