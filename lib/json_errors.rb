@@ -3,6 +3,9 @@
 require 'json_errors/version'
 require 'json_errors/configuration'
 require 'json_errors/j_error'
+require 'json_errors/serializer/base'
+require 'json_errors/serializer/j_error'
+require 'json_errors/serializer/invalid_record'
 require 'yaml'
 
 module JsonErrors
@@ -10,27 +13,28 @@ module JsonErrors
 
   def self.handle_jerror
     lambda do |exception|
-      # Handle with custom error
+      JsonErrors::Serializer::JError.serialize(exception)
     end
   end
 
-  def self.handle_active_record_error
+  def self.handle_invalid_record
     lambda do |exception|
-      # Handle with record error
+      JsonErrors::Serializer::InvalidRecord.serialize(exception)
     end
   end
 
   def self.handle_other_exception
     lambda do |exception|
-      # Handle with exception error
+      JsonErrors::Serializer::Base.serialize(exception)
     end
   end
 
   extend JsonErrors::Configuration.new(
+    renderer: :render,
     default_error_status: :bad_request,
     log_error: ->(_exception) {},
     jerror_handler: JsonErrors.handle_jerror,
-    active_record_error_handler: JsonErrors.handle_active_record_error,
+    invalid_record_handler: JsonErrors.handle_invalid_record,
     other_exception_handler: JsonErrors.handle_other_exception
   )
 
@@ -49,11 +53,15 @@ module JsonErrors
 
   def rescue_error(exception)
     JsonErrors.log_error.call(exception)
+    send(JsonErrors.renderer, error_response(exception))
+  end
+
+  def error_response(exception)
     case exception
     when JsonErrors::JError
       JsonErrors.jerror_handler.call(exception)
-    when ActiveRecord::ActiveRecordError
-      JsonErrors.active_record_error_handler.call(exception)
+    when ActiveRecord::RecordInvalid
+      JsonErrors.invalid_record_handler.call(exception)
     else
       JsonErrors.other_exception_handler.call(exception)
     end
@@ -61,7 +69,7 @@ module JsonErrors
 
   def self.load_config_files!
     code_file = ::Rails.root.join('config', 'error_codes.yml')
-    YAML.load_file(code_file) if File.exist?(code_file)
+    File.exist?(code_file) ? YAML.load_file(code_file) : {}
   end
 
   def self.load_and_set_settings
