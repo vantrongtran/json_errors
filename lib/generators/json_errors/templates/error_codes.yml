@@ -1,2 +1,5 @@
-unauthorized: 101
-unauthenticated: 102
+not_found:
+  # define not found codes
+  # example: record_not_found: ECODE01
+bad_request:
+  # define exception codes

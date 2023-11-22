@@ -9,6 +9,10 @@ module JsonErrors
       end
       define_reader(:error_setting, {})
       define_writer(:error_setting)
+      define_reader(
+        :http_status,
+        Rack::Utils::HTTP_STATUS_CODES.transform_values { |e| e.delete(' ').underscore.to_sym }
+      )
     end
 
     private
