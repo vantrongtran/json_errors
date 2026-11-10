@@ -12,14 +12,14 @@ module JsonErrors
       end
 
       def serialize
-        { json: { errors: error_reponse }, status: http_status }
+        { json: { errors: error_response }, status: http_status }
       end
 
       private
 
       attr_reader :error
 
-      def error_reponse
+      def error_response
         [{
           code: code,
           message: message
