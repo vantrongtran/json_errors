@@ -5,7 +5,7 @@ module JsonErrors
     class InvalidRecord < JsonErrors::Serializer::Base
       private
 
-      def error_reponse
+      def error_response
         record.errors.details.map do |field, details|
           {
             code: code(details.first[:error].to_s),
